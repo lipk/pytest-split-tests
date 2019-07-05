@@ -7,18 +7,17 @@ from _pytest.config import create_terminal_writer
 import pytest
 
 
-def get_group_size(total_items, total_groups):
+def get_group_size(total_items, total_groups, group_id):
     """Return the group size."""
-    return int(math.ceil(float(total_items) / total_groups))
+    rem = total_items % total_groups
+    base = (total_items - rem) // total_groups
+    return base + 1 if group_id <= rem else base
 
 
 def get_group(items, group_size, group_id):
     """Get the items from the passed in group based on group size."""
     start = group_size * (group_id - 1)
     end = start + group_size
-
-    if start >= len(items) or start < 0:
-        raise ValueError("Invalid test-group argument")
 
     return items[start:end]
 
@@ -45,6 +44,9 @@ def pytest_collection_modifyitems(session, config, items):
 
     if not group_count or not group_id:
         return
+
+    if not 0 < group_id <= group_count:
+        raise ValueError("Invalid test-group argument")
 
     test_dict = {item.name: item for item in items}
     original_order = {item: index for index, item in enumerate(items)}
@@ -76,7 +78,7 @@ def pytest_collection_modifyitems(session, config, items):
 
     total_unscheduled_items = len(unscheduled_tests)
 
-    group_size = get_group_size(total_unscheduled_items, group_count)
+    group_size = get_group_size(total_unscheduled_items, group_count, group_id)
     tests_in_group = get_group(unscheduled_tests, group_size, group_id)
     items[:] = tests_in_group + prescheduled_tests
 
