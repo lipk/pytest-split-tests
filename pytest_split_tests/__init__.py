@@ -9,9 +9,8 @@ import pytest
 
 def get_group_size(total_items, total_groups, group_id):
     """Return the group size."""
-    rem = total_items % total_groups
-    base = (total_items - rem) // total_groups
-    return base + 1 if group_id <= rem else base
+    base = total_items // total_groups
+    return base + 1 if group_id <= total_items % total_groups else base
 
 
 def get_group(items, group_size, group_id):
