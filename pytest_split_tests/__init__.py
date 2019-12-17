@@ -42,8 +42,8 @@ def pytest_collection_modifyitems(session, config, items):
     yield
     group_count = config.getoption('test-group-count')
     group_id = config.getoption('test-group')
-    seed = config.getoption('random-seed', False)
-    prescheduled_path = config.getoption('prescheduled', None)
+    seed = config.getoption('random-seed')
+    prescheduled_path = config.getoption('prescheduled')
 
     if not group_count or not group_id:
         return
@@ -72,7 +72,7 @@ def pytest_collection_modifyitems(session, config, items):
                           if test_name in test_dict]
     unscheduled_tests = [item for item in items if item not in all_prescheduled_tests]
 
-    if seed is not False:
+    if seed is not None:
         seeded = Random(seed)
         seeded.shuffle(unscheduled_tests)
 
